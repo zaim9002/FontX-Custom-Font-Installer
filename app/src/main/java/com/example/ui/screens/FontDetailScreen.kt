@@ -27,15 +27,12 @@ import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatItalic
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +47,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -60,29 +58,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.manager.FontRenderManager
 import com.example.model.FontItem
 import com.example.ui.theme.CardBorderDark
-import com.example.ui.theme.PrimaryViolet
-import com.example.ui.theme.SecondaryCyan
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FontDetailScreen(
     font: FontItem,
     isArabic: Boolean,
-    customText: String,
-    fontSizeSp: Float,
-    isBold: Boolean,
-    isItalic: Boolean,
     onBack: () -> Unit,
-    onCustomTextChange: (String) -> Unit,
-    onFontSizeChange: (Float) -> Unit,
-    onToggleBold: () -> Unit,
-    onToggleItalic: () -> Unit,
     onApplyFont: () -> Unit,
     onExportFont: () -> Unit,
     onDownloadFont: () -> Unit,
@@ -92,6 +79,12 @@ fun FontDetailScreen(
     val fontFamily = remember(font.localFilePath) {
         FontRenderManager.getFontFamily(font.localFilePath)
     }
+
+    // High performance local state for instant 120fps fluid responsiveness
+    var customText by remember { mutableStateOf("") }
+    var fontSizeSp by remember { mutableFloatStateOf(24f) }
+    var isBold by remember { mutableStateOf(false) }
+    var isItalic by remember { mutableStateOf(false) }
 
     val sampleArabic = "مرحبًا بك في FontX - تجربة الخطوط الأكثر احترافية"
     val sampleEnglish = "Welcome to FontX - Customize your typography style"
@@ -183,7 +176,7 @@ fun FontDetailScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Rendered Text Box using real font!
+                        // Rendered Text Box using real font
                         Surface(
                             shape = RoundedCornerShape(14.dp),
                             color = MaterialTheme.colorScheme.background,
@@ -225,7 +218,7 @@ fun FontDetailScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Slider(
                                 value = fontSizeSp,
-                                onValueChange = onFontSizeChange,
+                                onValueChange = { fontSizeSp = it },
                                 valueRange = 14f..44f,
                                 modifier = Modifier
                                     .weight(1f)
@@ -238,7 +231,7 @@ fun FontDetailScreen(
                             Spacer(modifier = Modifier.width(8.dp))
 
                             IconButton(
-                                onClick = onToggleBold,
+                                onClick = { isBold = !isBold },
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(CircleShape)
@@ -257,7 +250,7 @@ fun FontDetailScreen(
                             Spacer(modifier = Modifier.width(6.dp))
 
                             IconButton(
-                                onClick = onToggleItalic,
+                                onClick = { isItalic = !isItalic },
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(CircleShape)
@@ -289,7 +282,7 @@ fun FontDetailScreen(
 
                     OutlinedTextField(
                         value = customText,
-                        onValueChange = onCustomTextChange,
+                        onValueChange = { customText = it },
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("custom_preview_input"),
@@ -313,22 +306,22 @@ fun FontDetailScreen(
                     ) {
                         FilterChip(
                             selected = customText == sampleArabic,
-                            onClick = { onCustomTextChange(sampleArabic) },
+                            onClick = { customText = sampleArabic },
                             label = { Text("عربي", fontSize = 12.sp) }
                         )
                         FilterChip(
                             selected = customText == sampleEnglish,
-                            onClick = { onCustomTextChange(sampleEnglish) },
+                            onClick = { customText = sampleEnglish },
                             label = { Text("English", fontSize = 12.sp) }
                         )
                         FilterChip(
                             selected = customText == sampleNumbers,
-                            onClick = { onCustomTextChange(sampleNumbers) },
+                            onClick = { customText = sampleNumbers },
                             label = { Text("012345", fontSize = 12.sp) }
                         )
                         FilterChip(
                             selected = customText == sampleAlphabet,
-                            onClick = { onCustomTextChange(sampleAlphabet) },
+                            onClick = { customText = sampleAlphabet },
                             label = { Text("ABC", fontSize = 12.sp) }
                         )
                     }

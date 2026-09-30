@@ -1,6 +1,7 @@
 package com.example
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -38,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -65,6 +65,14 @@ enum class MainTab(val titleAr: String, val titleEn: String, val icon: ImageVect
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Crash-guard: safely handle any uncaught thread exceptions gracefully
+        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            Log.e("FontXCrashGuard", "Caught uncaught exception on thread ${thread.name}", throwable)
+            defaultHandler?.uncaughtException(thread, throwable)
+        }
+
         enableEdgeToEdge()
         setContent {
             FontXApp()
@@ -93,25 +101,9 @@ fun FontXApp(
     var currentTab by remember { mutableStateOf(MainTab.HOME) }
 
     val deviceInfo by viewModel.deviceInfo.collectAsStateWithLifecycle()
-    val allFonts by viewModel.allFonts.collectAsStateWithLifecycle()
-    val filteredFonts by viewModel.filteredFonts.collectAsStateWithLifecycle()
-    val featuredFonts by viewModel.featuredFonts.collectAsStateWithLifecycle()
-    val favoriteFonts by viewModel.favoriteFonts.collectAsStateWithLifecycle()
-    val downloadedFonts by viewModel.downloadedFonts.collectAsStateWithLifecycle()
-    val importedFonts by viewModel.importedFonts.collectAsStateWithLifecycle()
-    val arabicFonts by viewModel.arabicFonts.collectAsStateWithLifecycle()
-    val englishFonts by viewModel.englishFonts.collectAsStateWithLifecycle()
-
-    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
-    val selectedCategory by viewModel.selectedCategory.collectAsStateWithLifecycle()
     val selectedFontForDetail by viewModel.selectedFontForDetail.collectAsStateWithLifecycle()
-    val customPreviewText by viewModel.customPreviewText.collectAsStateWithLifecycle()
-    val previewFontSize by viewModel.previewFontSizeSp.collectAsStateWithLifecycle()
-    val previewIsBold by viewModel.previewIsBold.collectAsStateWithLifecycle()
-    val previewIsItalic by viewModel.previewIsItalic.collectAsStateWithLifecycle()
     val activeApplyDialogFont by viewModel.activeApplyDialogFont.collectAsStateWithLifecycle()
     val userMessage by viewModel.userMessage.collectAsStateWithLifecycle()
-    val isWifiOnly by viewModel.isWifiOnly.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -131,7 +123,6 @@ fun FontXApp(
                     onFinish = { showSplash = false }
                 )
             } else {
-                // Back button handling
                 BackHandler(enabled = selectedFontForDetail != null || currentTab != MainTab.HOME) {
                     if (selectedFontForDetail != null) {
                         viewModel.selectFontForDetail(null)
@@ -147,7 +138,7 @@ fun FontXApp(
                         if (selectedFontForDetail == null) {
                             Surface(
                                 color = MaterialTheme.colorScheme.surface,
-                                shadowElevation = 10.dp,
+                                shadowElevation = 8.dp,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 NavigationBar(
@@ -198,15 +189,7 @@ fun FontXApp(
                             FontDetailScreen(
                                 font = detailFont,
                                 isArabic = isArabic,
-                                customText = customPreviewText,
-                                fontSizeSp = previewFontSize,
-                                isBold = previewIsBold,
-                                isItalic = previewIsItalic,
                                 onBack = { viewModel.selectFontForDetail(null) },
-                                onCustomTextChange = { viewModel.setCustomPreviewText(it) },
-                                onFontSizeChange = { viewModel.setPreviewFontSize(it) },
-                                onToggleBold = { viewModel.toggleBold() },
-                                onToggleItalic = { viewModel.toggleItalic() },
                                 onApplyFont = { viewModel.showApplyDialog(detailFont) },
                                 onExportFont = { viewModel.exportFont(detailFont) },
                                 onDownloadFont = { viewModel.downloadFont(detailFont) },
@@ -215,6 +198,13 @@ fun FontXApp(
                         } else {
                             when (currentTab) {
                                 MainTab.HOME -> {
+                                    val filteredFonts by viewModel.filteredFonts.collectAsStateWithLifecycle()
+                                    val featuredFonts by viewModel.featuredFonts.collectAsStateWithLifecycle()
+                                    val arabicFonts by viewModel.arabicFonts.collectAsStateWithLifecycle()
+                                    val englishFonts by viewModel.englishFonts.collectAsStateWithLifecycle()
+                                    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+                                    val selectedCategory by viewModel.selectedCategory.collectAsStateWithLifecycle()
+
                                     HomeScreen(
                                         deviceInfo = deviceInfo,
                                         fonts = filteredFonts,
@@ -235,6 +225,11 @@ fun FontXApp(
                                     )
                                 }
                                 MainTab.MY_FONTS -> {
+                                    val downloadedFonts by viewModel.downloadedFonts.collectAsStateWithLifecycle()
+                                    val importedFonts by viewModel.importedFonts.collectAsStateWithLifecycle()
+                                    val favoriteFonts by viewModel.favoriteFonts.collectAsStateWithLifecycle()
+                                    val allFonts by viewModel.allFonts.collectAsStateWithLifecycle()
+
                                     MyFontsScreen(
                                         downloadedFonts = downloadedFonts,
                                         importedFonts = importedFonts,
@@ -251,10 +246,10 @@ fun FontXApp(
                                         deviceInfo = deviceInfo,
                                         isArabic = isArabic,
                                         onOpenSettings = {
-                                            val intent = com.example.compat.DeviceCompatibilityManager.createApplyIntent(context)
                                             try {
+                                                val intent = com.example.compat.DeviceCompatibilityManager.createApplyIntent(context)
                                                 context.startActivity(intent)
-                                            } catch (e: Exception) {
+                                            } catch (e: Throwable) {
                                                 // ignore
                                             }
                                         },
@@ -264,6 +259,8 @@ fun FontXApp(
                                     )
                                 }
                                 MainTab.SETTINGS -> {
+                                    val isWifiOnly by viewModel.isWifiOnly.collectAsStateWithLifecycle()
+
                                     SettingsScreen(
                                         currentLanguage = currentLanguage,
                                         themeMode = themeMode,

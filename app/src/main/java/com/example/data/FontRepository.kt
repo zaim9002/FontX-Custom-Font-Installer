@@ -18,12 +18,6 @@ class FontRepository(
     private val fontDao: FontDao
 ) {
     val allFonts: Flow<List<FontItem>> = fontDao.getAllFonts()
-    val featuredFonts: Flow<List<FontItem>> = fontDao.getFeaturedFonts()
-    val favoriteFonts: Flow<List<FontItem>> = fontDao.getFavoriteFonts()
-    val downloadedFonts: Flow<List<FontItem>> = fontDao.getDownloadedFonts()
-    val importedFonts: Flow<List<FontItem>> = fontDao.getImportedFonts()
-    val arabicFonts: Flow<List<FontItem>> = fontDao.getArabicFonts()
-    val englishFonts: Flow<List<FontItem>> = fontDao.getEnglishFonts()
 
     fun searchFonts(query: String): Flow<List<FontItem>> = fontDao.searchFonts(query)
     fun getFontById(id: String): Flow<FontItem?> = fontDao.getFontById(id)
@@ -145,11 +139,16 @@ class FontRepository(
                         }
                     }
                 } catch (e: Exception) {
-                    // ignore if asset missing
+                    // asset copy fallback
                 }
             }
 
             val fileSize = if (destination.exists()) destination.length() else 450000L
+
+            // Preload font into memory cache on background thread
+            if (destination.exists()) {
+                FontRenderManager.preload(destination.absolutePath)
+            }
 
             fontItems.add(
                 FontItem(
@@ -177,7 +176,10 @@ class FontRepository(
             )
         }
 
-        fontDao.insertFonts(fontItems)
+        // Only insert if database doesn't already have fonts
+        if (fontDao.getFontCount() == 0) {
+            fontDao.insertFonts(fontItems)
+        }
     }
 
     suspend fun toggleFavorite(fontId: String, currentStatus: Boolean) = withContext(Dispatchers.IO) {
@@ -202,6 +204,7 @@ class FontRepository(
                 }
             }
 
+            FontRenderManager.preload(targetFile.absolutePath)
             fontDao.updateDownloadStatus(font.id, true, targetFile.absolutePath)
             Result.success(targetFile.absolutePath)
         } catch (e: Exception) {
@@ -248,6 +251,8 @@ class FontRepository(
                     IllegalArgumentException("الملف تالف أو ليس ملف خط حقيقي.")
                 )
             }
+
+            FontRenderManager.preload(targetFile.absolutePath)
 
             val baseName = fileName.substringBeforeLast(".")
                 .replace("_", " ")

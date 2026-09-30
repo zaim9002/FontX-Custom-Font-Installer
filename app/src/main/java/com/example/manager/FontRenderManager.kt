@@ -1,10 +1,7 @@
 package com.example.manager
 
-import android.content.Context
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import java.io.File
 import java.io.FileInputStream
 import java.util.concurrent.ConcurrentHashMap
@@ -43,14 +40,14 @@ object FontRenderManager {
 
                 isTrueType || isOpenType || isCollection
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             false
         }
     }
 
     /**
-     * Obtains or compiles a Jetpack Compose FontFamily from a local font file.
-     * Falls back safely to FontFamily.Default if file cannot be read.
+     * Safely obtains or compiles a Jetpack Compose FontFamily from a local font file.
+     * Caches both successes and fallbacks so the UI thread is never blocked or stressed.
      */
     fun getFontFamily(localFilePath: String?): FontFamily {
         if (localFilePath.isNullOrBlank()) {
@@ -61,25 +58,29 @@ object FontRenderManager {
 
         val file = File(localFilePath)
         if (!file.exists() || !file.canRead()) {
+            fontFamilyCache[localFilePath] = FontFamily.Default
             return FontFamily.Default
         }
 
         return try {
-            val normalFont = Font(file = file, weight = FontWeight.Normal, style = FontStyle.Normal)
-            val boldFont = Font(file = file, weight = FontWeight.Bold, style = FontStyle.Normal)
-            val italicFont = Font(file = file, weight = FontWeight.Normal, style = FontStyle.Italic)
-            val family = FontFamily(normalFont, boldFont, italicFont)
+            // Passing a single Font(file) is safe across all Android versions
+            // Compose automatically handles synthetic bold and italic without font table mismatch
+            val singleFont = Font(file = file)
+            val family = FontFamily(singleFont)
             fontFamilyCache[localFilePath] = family
             family
         } catch (e: Throwable) {
-            try {
-                val singleFont = Font(file = file)
-                val family = FontFamily(singleFont)
-                fontFamilyCache[localFilePath] = family
-                family
-            } catch (fallbackEx: Throwable) {
-                FontFamily.Default
-            }
+            fontFamilyCache[localFilePath] = FontFamily.Default
+            FontFamily.Default
+        }
+    }
+
+    /**
+     * Preloads a font family in the background so that UI rendering is instant.
+     */
+    fun preload(localFilePath: String?) {
+        if (!localFilePath.isNullOrBlank() && !fontFamilyCache.containsKey(localFilePath)) {
+            getFontFamily(localFilePath)
         }
     }
 

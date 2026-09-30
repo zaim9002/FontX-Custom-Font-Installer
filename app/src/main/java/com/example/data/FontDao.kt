@@ -14,6 +14,9 @@ interface FontDao {
     @Query("SELECT * FROM fonts ORDER BY name ASC")
     fun getAllFonts(): Flow<List<FontItem>>
 
+    @Query("SELECT COUNT(*) FROM fonts")
+    suspend fun getFontCount(): Int
+
     @Query("SELECT * FROM fonts WHERE isFeatured = 1 ORDER BY downloadCount DESC")
     fun getFeaturedFonts(): Flow<List<FontItem>>
 
