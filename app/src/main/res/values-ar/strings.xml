@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FontX</string>
+    <string name="app_tagline">خصص خط هاتفك باحترافية</string>
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_explore">استكشف</string>
+    <string name="nav_my_fonts">خطوطي</string>
+    <string name="nav_compatibility">فحص التوافق</string>
+    <string name="nav_settings">الإعدادات</string>
+    
+    <string name="search_placeholder">ابحث عن خط، تصنيف، لغة…</string>
+    <string name="device_status_title">محرك خطوط الجهاز</string>
+    <string name="check_compatibility_btn">فحص توافق الجهاز</string>
+    <string name="apply_font">تطبيق الخط</string>
+    <string name="preview_font">معاينة الخط</string>
+    <string name="import_font">استيراد TTF / OTF</string>
+    <string name="export_font">تصدير الخط</string>
+    <string name="download_font">تنزيل</string>
+    <string name="installed_or_ready">جاهز للتطبيق</string>
+    
+    <string name="category_all">الكل</string>
+    <string name="category_arabic">عربي</string>
+    <string name="category_english">إنجليزي</string>
+    <string name="category_modern">عصري</string>
+    <string name="category_classic">كلاسيكي</string>
+    <string name="category_elegant">أنيق</string>
+    <string name="category_ios">نمط iOS</string>
+    <string name="category_gaming">ألعاب</string>
+    <string name="category_handwriting">خطوط رقعة ونسخ</string>
+    
+    <string name="featured_fonts">خطوط مميزة</string>
+    <string name="latest_fonts">أحدث الخطوط</string>
+    <string name="arabic_fonts">الخطوط العربية</string>
+    <string name="english_fonts">الخطوط الإنجليزية</string>
+    <string name="popular_fonts">الأكثر شعبية</string>
+    <string name="favorites">المفضلة</string>
+    <string name="downloaded">تم تنزيلها</string>
+    <string name="imported">مستوردة</string>
+    <string name="recent">المستخدمة مؤخرًا</string>
+    <string name="empty_fonts">لم يتم العثور على خطوط</string>
+    <string name="empty_favorites">لا توجد خطوط مفضلة بعد. انقر على أيقونة القلب في أي خط لإضافته هنا.</string>
+    <string name="empty_downloaded">لا توجد خطوط تم تنزيلها بعد. تصفح وحمل خطوطك المفضلة.</string>
+    <string name="empty_imported">لا توجد خطوط مستوردة. اضغط على استيراد لإضافة ملفات TTF أو OTF من هاتفك.</string>
+    
+    <string name="tab_downloaded">المحملة</string>
+    <string name="tab_imported">المستوردة</string>
+    <string name="tab_favorites">المفضلة</string>
+    <string name="tab_history">سجل الاستخدام</string>
+    
+    <string name="sample_arabic_text">مرحبًا بك في FontX - تجربة تخصيص الخطوط الأكثر احترافية وسلاسة</string>
+    <string name="sample_english_text">The quick brown fox jumps over the lazy dog. 1234567890</string>
+    <string name="sample_numbers">0123456789 - ٠١٢٣٤٥٦٧٨٩</string>
+    
+    <string name="settings_appearance">المظهر والتصميم</string>
+    <string name="settings_theme_system">تلقائي حسب النظام</string>
+    <string name="settings_theme_dark">الوضع الليلي</string>
+    <string name="settings_theme_light">الوضع النهاري</string>
+    <string name="settings_language">لغة التطبيق</string>
+    <string name="settings_storage">التخزين والذاكرة المؤقتة</string>
+    <string name="settings_clear_cache">مسح ذاكرة الخطوط المؤقتة</string>
+    <string name="settings_wifi_only">التنزيل عبر Wi-Fi فقط</string>
+    <string name="settings_about">حول تطبيق FontX</string>
+    <string name="settings_privacy">سياسة الأمان والخصوصية</string>
+    <string name="settings_version">الإصدار 1.0.0 (إصدار إنتاجي مستقر)</string>
+</resources>

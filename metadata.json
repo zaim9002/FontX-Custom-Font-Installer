@@ -1,0 +1,6 @@
+{
+  "name": "FontX",
+  "description": "تطبيق احترافي لتغيير وتخصيص خطوط الهاتف مع دعم Samsung وXiaomi وHuawei وHONOR وOPPO وفحص التوافق التلقائي.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
